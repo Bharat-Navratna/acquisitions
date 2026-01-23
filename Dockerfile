@@ -14,12 +14,13 @@ RUN npm ci --only=production && npm cache clean --force
 # Copy source code
 COPY . .
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+# Create non-root user (Debian-based image)
+# `node:20-slim` is Debian, so we use `groupadd`/`useradd` instead of Alpine's `addgroup`/`adduser` flags.
+RUN groupadd -g 1001 nodejs \
+    && useradd -r -u 1001 -g nodejs nodejs \
+    && mkdir -p /home/nodejs \
+    && chown -R nodejs:nodejs /home/nodejs /app
 
-# Change ownership
-RUN chown -R nodejs:nodejs /app
 USER nodejs
 
 # Expose port
