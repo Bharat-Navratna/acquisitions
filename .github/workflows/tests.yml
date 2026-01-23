@@ -1,0 +1,66 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: test
+        env:
+          NODE_ENV: test
+          NODE_OPTIONS: --experimental-vm-modules
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm test
+        continue-on-error: true
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: coverage/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.test.outcome }}" = "success" ]; then
+            echo "✅ All tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+            
+            if [ -d "coverage" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Coverage Report" >> $GITHUB_STEP_SUMMARY
+              echo "Coverage reports have been uploaded as artifacts." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ Tests failed. Please review the logs above for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Annotate test failures
+        if: steps.test.outcome == 'failure'
+        run: |
+          echo "::error title=Test failures detected::One or more tests failed. Review the test output above for details on which tests failed and why."
+          exit 1
