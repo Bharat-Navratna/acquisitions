@@ -6,7 +6,10 @@ import {
   deleteUser as deleteUserService,
 } from '#services/users.service.js';
 import { formatValidationError } from '#utils/format.js';
-import { updateUserSchema, userIdSchema } from '#validations/users.validation.js';
+import {
+  updateUserSchema,
+  userIdSchema,
+} from '#validations/users.validation.js';
 
 export const fetchAllUsers = async (req, res, next) => {
   try {
@@ -78,7 +81,10 @@ export const updateUser = async (req, res, next) => {
     if (authUser.role !== 'admin' && authUser.id !== id) {
       return res
         .status(403)
-        .json({ error: 'Forbidden', message: 'You can only update your own account' });
+        .json({
+          error: 'Forbidden',
+          message: 'You can only update your own account',
+        });
     }
 
     const bodyResult = updateUserSchema.safeParse(req.body);
@@ -140,7 +146,10 @@ export const deleteUser = async (req, res, next) => {
     if (authUser.role !== 'admin' && authUser.id !== id) {
       return res
         .status(403)
-        .json({ error: 'Forbidden', message: 'You can only delete your own account' });
+        .json({
+          error: 'Forbidden',
+          message: 'You can only delete your own account',
+        });
     }
 
     logger.info(`Deleting user with id ${id} ...`);

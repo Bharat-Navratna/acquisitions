@@ -180,14 +180,14 @@ export { db, sql };
 ### 6.1 Compose file – `docker-compose.dev.yml`
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   neon-local:
     image: neondatabase/neon_local:latest
     container_name: neon-local
     ports:
-      - "5432:5432"
+      - '5432:5432'
     env_file:
       - .env.development
     environment:
@@ -207,8 +207,8 @@ services:
     depends_on:
       - neon-local
     ports:
-      - "3001:3001"
-    command: ["npm", "run", "dev"]
+      - '3001:3001'
+    command: ['npm', 'run', 'dev']
 ```
 
 ### 6.2 Behavior
@@ -260,7 +260,7 @@ This is useful for inspecting or debugging your local dev database.
 ### 7.1 Compose file – `docker-compose.prod.yml`
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   app:
@@ -273,7 +273,7 @@ services:
     environment:
       NODE_ENV: production
     ports:
-      - "3001:3001"
+      - '3001:3001'
     restart: unless-stopped
 ```
 
